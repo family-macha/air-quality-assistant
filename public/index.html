@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A smog-day plan for your family: what to do today, why it works, and what it saves.">
+  <title>Smog Day Planner</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip" href="#results">Skip to results</a>
+  <header><h1>Smog Day Planner</h1><p>Tell us where you live and who is at home. Get today’s plan, with the reason behind every step.</p></header>
+  <main>
+    <form id="form" novalidate>
+      <label for="city">City</label>
+      <input id="city" name="city" type="text" required minlength="2" maxlength="80" autocomplete="address-level2" aria-describedby="city-help">
+      <p id="city-help" class="help">For example: Delhi, Lahore, Beijing, Ongole.</p>
+      <fieldset>
+        <legend>Who needs extra care?</legend>
+        <label class="check"><input type="checkbox" name="children"> Children under 12</label>
+        <label class="check"><input type="checkbox" name="elderly"> Adults over 65</label>
+        <label class="check"><input type="checkbox" name="respiratory"> Asthma or lung conditions</label>
+      </fieldset>
+      <fieldset>
+        <legend>Your home</legend>
+        <label class="check"><input type="checkbox" name="purifier"> We own an air purifier</label>
+        <label class="check"><input type="checkbox" name="gasStove"> We cook on gas or wood</label>
+      </fieldset>
+      <label for="commute">Main way you get around</label>
+      <select id="commute" name="commute">
+        <option value="transit">Bus or train</option><option value="walk">Walking</option><option value="cycle">Cycling</option>
+        <option value="two-wheeler">Motorbike or scooter</option><option value="car">Car</option>
+      </select>
+      <button id="submit" type="submit">Get today’s plan</button>
+    </form>
+    <section id="results" tabindex="-1" aria-live="polite" aria-busy="false"><p id="status" class="help"></p><div id="plan"></div></section>
+  </main>
+  <footer><p>General guidance, not medical advice. Air data: Open-Meteo. Impact figures are approximate.</p></footer>
+  <script type="module" src="app.js"></script>
+</body>
+</html>
