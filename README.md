@@ -7,39 +7,50 @@
 
 **Vertical:** Urban Air Quality Assistant for families and communities facing severe winter smog.
 
----
+## What it does
+Enter a city and who is at home (children, older adults, lung conditions, purifier, cooking fuel, commute). The app reads **live** air quality and returns a ranked plan of low-emission routines, indoor air hacks and sustainable alternatives. Every action states **what to do, why it works, and its approximate impact** (exposure or CO₂).
 
-### Demo Preview
+## Demo Preview
 ![Smog Day Planner Demo](./air-quality-assistant-demo.gif)
 
 > 📹 High-definition MP4 video available: [air-quality-assistant-demo.mp4](./air-quality-assistant-demo.mp4)
 
----
+## Architecture
+```
+public/  index.html, app.js (DOM), form.js (pure, tested)
+api/advice.js          thin Vercel adapter (HTTP only)
+lib/service.js         request flow: limit -> validate -> data -> plan -> optional AI  (all deps injected)
+lib/validate.js        allow-list input validation
+lib/airdata.js         geocoding + live AQI (Open-Meteo), timeouts, 10-minute cache
+lib/rules.js           advice as declarative data (when / priority / why / impact)
+lib/advice.js          pure rule engine: same input -> same plan
+lib/gemini.js          optional Gemini summary; fails closed to null
+lib/ratelimit.js       fixed-window limiter
+```
 
-## Approach and logic
-1. **Live data**: the city is geocoded and current US AQI and PM2.5 are read from Open-Meteo (no API key).
-2. **Context-aware rule engine** (`lib/advice.js`): household profile (children, elders, lung conditions, purifier, cooking fuel, commute) shifts the effective risk one band worse for vulnerable people, then selects ranked actions: low-emission routines, indoor air hacks and sustainable alternatives.
-3. **Explained impact**: every action carries *why it works* and an approximate *impact* (health exposure or CO₂).
-4. **GenAI layer** (`lib/gemini.js`): Gemini writes a short plain-language summary from validated facts only. If no key is set or the call fails, the deterministic plan still works.
+## Logic
+1. Geocode the city and read current US AQI and PM2.5.
+2. Map AQI to an EPA band, then apply a household **risk level**: children, older adults and people with lung conditions are treated one band worse once air is no longer "Good".
+3. Select rules from `lib/rules.js` whose conditions match, rank by priority, and resolve profile-specific wording (for example car vs motorbike commute, owning a purifier or not).
+4. If `GEMINI_API_KEY` is set, Gemini adds a short plain-language summary from validated facts only. Without a key, or on any failure, the deterministic plan is still returned.
 
-## Design decisions
-- **Code quality**: small pure modules, JSDoc, no dependencies (nothing to patch, tiny repo).
-- **Security**: allow-list validation, no HTML injection (`textContent` only), strict CSP and security headers (`vercel.json`), API key server-side only, prompt treats user data as data, rate limiting, generic error messages.
-- **Efficiency**: 10-minute upstream cache, request timeouts, zero client dependencies, one small API call path.
-- **Testing**: `npm test` (Node built-in runner, all network calls injected and mocked) plus GitHub Actions CI.
-- **Accessibility**: semantic landmarks, labelled controls, 44px targets, visible focus, skip link, live region, colour never the only signal, dark mode, reduced motion and forced-colors support.
+## Quality decisions
+- **Code quality**: rules are data, logic is pure, transport is separate from behaviour, JSDoc types, `.editorconfig`, zero runtime dependencies.
+- **Security**: allow-list validation, `textContent`-only rendering, strict CSP and security headers (`vercel.json`), server-side API key, user data passed to the model as quoted data, per-client rate limit, generic errors, logs contain error names only.
+- **Efficiency**: upstream cache, request timeouts, no client dependencies, two upstream calls per uncached request.
+- **Testing**: `npm test` or `npm run test:coverage` (Node built-in runner). Service flow (405/429/400/404/502/200), a 2,080-scenario invariant test of the rule engine, unit tests for every lib module and the form logic. All network calls are injected and mocked. CI runs on every push.
+- **Accessibility**: landmarks, labelled controls, inline errors linked with `aria-describedby`/`aria-invalid`, `role=status`/`alert` live regions, focus moves to the result heading, skip link, 44px targets, visible focus, colour never the only signal, dark mode, reduced-motion, forced-colors, `<noscript>` message.
 
 ## Run and deploy
 ```
 npm test
-npx vercel dev        # local
-npx vercel --prod     # deploy; optionally set GEMINI_API_KEY in Vercel project settings
+npx vercel dev
+npx vercel --prod     # optionally set GEMINI_API_KEY (see .env.example)
 ```
 
-## Assumptions
-- US AQI is used worldwide for consistency. Impact figures are approximate, from public health literature, and not medical advice.
-- Rate limiting is best effort per serverless instance. The first matching city from the geocoder is used.
+## Assumptions and limits
+- US AQI is used worldwide for consistency; impact figures are approximate and general guidance, not medical advice.
+- The first geocoder match is used for the city. Rate limiting is best effort per serverless instance.
 
 ## Contributors
-- **family-macha** ([@family-macha](https://github.com/family-macha)) - `familyspace829@gmail.com`
-
+- **family-macha** ([@family-macha](https://github.com/family-macha))

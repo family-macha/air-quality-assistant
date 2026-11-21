@@ -12,7 +12,13 @@
       "url": "https://github.com/family-macha"
     }
   ],
-  "engines": { "node": ">=20" },
-  "scripts": { "test": "node --test" },
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "test": "node --test",
+    "test:coverage": "node --test --experimental-test-coverage",
+    "check": "node --check api/advice.js && node --check public/app.js"
+  },
   "license": "MIT"
 }

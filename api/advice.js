@@ -1,27 +1,14 @@
-import { parseRequest, ValidationError } from '../lib/validate.js';
-import { getAirQuality, NotFoundError } from '../lib/airdata.js';
-import { buildPlan } from '../lib/advice.js';
-import { narrate } from '../lib/gemini.js';
-import { createLimiter } from '../lib/ratelimit.js';
+import { createService } from '../lib/service.js';
 
-const limiter = createLimiter();
-const send = (res, status, body) => res.status(status).json(body);
+const handle = createService();
 
+/** First hop of x-forwarded-for, set by Vercel's edge; falls back to a shared bucket. */
+const clientIp = (headers) => String(headers['x-forwarded-for'] ?? '').split(',')[0].trim() || 'unknown';
+
+/** Thin Vercel adapter: all behaviour lives in lib/service.js. */
 export default async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store');
-  if (req.method !== 'POST') return send(res, 405, { error: 'Use POST.' });
-  const ip = String(req.headers['x-forwarded-for'] ?? '').split(',')[0].trim() || 'unknown';
-  if (!limiter.allow(ip)) return send(res, 429, { error: 'Too many requests. Try again in a minute.' });
-  try {
-    const { city, profile } = parseRequest(req.body);
-    const air = await getAirQuality(city);
-    const plan = buildPlan(air, profile);
-    const aiSummary = await narrate({ place: air.place, aqi: air.aqi, band: plan.band, actions: plan.actions });
-    return send(res, 200, { place: air.place, pm25: air.pm25, ...plan, aiSummary });
-  } catch (err) {
-    if (err instanceof ValidationError) return send(res, 400, { error: err.message });
-    if (err instanceof NotFoundError) return send(res, 404, { error: err.message });
-    console.error('advice failed:', err.name); // no user data or stack in logs/responses
-    return send(res, 502, { error: 'Air quality data is unavailable right now. Please retry shortly.' });
-  }
+  const { status, headers = {}, body } = await handle({ method: req.method, ip: clientIp(req.headers), body: req.body });
+  for (const [name, value] of Object.entries(headers)) res.setHeader(name, value);
+  res.status(status).json(body);
 }
