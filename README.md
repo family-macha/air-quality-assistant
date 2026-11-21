@@ -7,6 +7,15 @@
 
 **Vertical:** Urban Air Quality Assistant for families and communities facing severe winter smog.
 
+---
+
+### Demo Preview
+![Smog Day Planner Demo](./air-quality-assistant-demo.gif)
+
+> 📹 High-definition MP4 video available: [air-quality-assistant-demo.mp4](./air-quality-assistant-demo.mp4)
+
+---
+
 ## Approach and logic
 1. **Live data**: the city is geocoded and current US AQI and PM2.5 are read from Open-Meteo (no API key).
 2. **Context-aware rule engine** (`lib/advice.js`): household profile (children, elders, lung conditions, purifier, cooking fuel, commute) shifts the effective risk one band worse for vulnerable people, then selects ranked actions: low-emission routines, indoor air hacks and sustainable alternatives.
