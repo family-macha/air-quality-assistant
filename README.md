@@ -1,5 +1,7 @@
 # Smog Day Planner — Urban Air Quality Assistant (Challenge 6)
 
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Ffamily-macha%2Fair-quality-assistant&env=GEMINI_API_KEY,GEMINI_MODEL&envDescription=Optionally%20set%20your%20Gemini%20API%20key%20for%20AI-generated%20summaries)
+
 **Vertical:** Urban Air Quality Assistant for families and communities facing severe winter smog.
 
 ## Approach and logic
