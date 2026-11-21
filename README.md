@@ -1,6 +1,9 @@
 # Smog Day Planner — Urban Air Quality Assistant (Challenge 6)
 
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-air--quality--assistant--six.vercel.app-00bb77?style=flat-square&logo=vercel)](https://air-quality-assistant-six.vercel.app/)
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Ffamily-macha%2Fair-quality-assistant&env=GEMINI_API_KEY,GEMINI_MODEL&envDescription=Optionally%20set%20your%20Gemini%20API%20key%20for%20AI-generated%20summaries)
+
+🔗 **Live Deployment:** [https://air-quality-assistant-six.vercel.app/](https://air-quality-assistant-six.vercel.app/)
 
 **Vertical:** Urban Air Quality Assistant for families and communities facing severe winter smog.
 
